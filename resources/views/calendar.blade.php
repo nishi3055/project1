@@ -7,6 +7,7 @@
     
 <x-app-layout>
 <body>
+    <div style="width: 50%;margin: auto">
     <div id='calendar'></div>
 </body>
 </x-app-layout>
