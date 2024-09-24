@@ -4,9 +4,41 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Schedule;
+use Carbon\Carbon;
 
 class ScheduleController extends Controller
 {
+    /**
+     * イベントを取得
+     *
+     * @param  Request  $request
+     */
+    public function scheduleGet(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'required|integer',
+            'end_date' => 'required|integer'
+        ]);
+
+        $start = Carbon::createFromTimestampMs($request->input('start_date'));
+        $end = Carbon::createFromTimestampMs($request->input('end_date'));
+
+        $schedules = Schedule::query()
+            ->where('end_date', '>=', $start)
+            ->where('start_date', '<=', $end)
+            ->get()
+            ->map(function ($schedule) {
+                return [
+                    'id' => $schedule->id,
+                    'title' => $schedule->event_name,
+                    'start' => $schedule->start_date,
+                    'end' => $schedule->end_date,
+                    'extendedProps' => ['detail' => $schedule->event_detail]
+                ];
+            });
+
+        return response()->json($schedules);
+    }
 
     /**
      * イベントを登録
@@ -15,52 +47,74 @@ class ScheduleController extends Controller
      */
     public function scheduleAdd(Request $request)
     {
-        // バリデーション
-        $request->validate([
+        $validatedData = $request->validate([
+            'event_name' => 'required|max:32',
+            'event_detail' => 'nullable|string',
             'start_date' => 'required|integer',
             'end_date' => 'required|integer',
-            'event_name' => 'required|max:32',
         ]);
 
-        // 登録処理
         $schedule = new Schedule;
-        // 日付に変換。JavaScriptのタイムスタンプはミリ秒なので秒に変換
-        $schedule->start_date = date('Y-m-d', $request->input('start_date') / 1000);
-        $schedule->end_date = date('Y-m-d', $request->input('end_date') / 1000);
-        $schedule->event_name = $request->input('event_name');
+        $schedule->event_name = $validatedData['event_name'];
+        $schedule->event_detail = $validatedData['event_detail'];
+        $schedule->start_date = Carbon::createFromTimestampMs($validatedData['start_date'])->toDateTimeString();
+        $schedule->end_date = Carbon::createFromTimestampMs($validatedData['end_date'])->toDateTimeString();
         $schedule->save();
 
-        return;
+        return response()->json([
+            'id' => $schedule->id,
+            'title' => $schedule->event_name,
+            'start' => $schedule->start_date,
+            'end' => $schedule->end_date,
+            'extendedProps' => ['detail' => $schedule->event_detail]
+        ]);
     }
 
     /**
-     * イベントを取得
+     * イベントを更新
      *
      * @param  Request  $request
      */
-    public function scheduleGet(Request $request)
+    public function update(Request $request)
     {
-        // バリデーション
-        $request->validate([
+        $validatedData = $request->validate([
+            'id' => 'required|integer',
+            'event_name' => 'required|max:32',
+            'event_detail' => 'nullable|string',
             'start_date' => 'required|integer',
-            'end_date' => 'required|integer'
+            'end_date' => 'required|integer',
         ]);
 
-        // カレンダー表示期間
-        $start_date = date('Y-m-d', $request->input('start_date') / 1000);
-        $end_date = date('Y-m-d', $request->input('end_date') / 1000);
+        $schedule = Schedule::findOrFail($validatedData['id']);
+        $schedule->event_name = $validatedData['event_name'];
+        $schedule->event_detail = $validatedData['event_detail'];
+        $schedule->start_date = Carbon::createFromTimestampMs($validatedData['start_date'])->toDateTimeString();
+        $schedule->end_date = Carbon::createFromTimestampMs($validatedData['end_date'])->toDateTimeString();
+        $schedule->save();
 
-        // 登録処理
-        return Schedule::query()
-            ->select(
-                // FullCalendarの形式に合わせる
-                'start_date as start',
-                'end_date as end',
-                'event_name as title'
-            )
-            // FullCalendarの表示範囲のみ表示
-            ->where('end_date', '>', $start_date)
-            ->where('start_date', '<', $end_date)
-            ->get();
+        return response()->json([
+            'id' => $schedule->id,
+            'title' => $schedule->event_name,
+            'start' => $schedule->start_date,
+            'end' => $schedule->end_date,
+            'extendedProps' => ['detail' => $schedule->event_detail]
+        ]);
+    }
+
+    /**
+     * イベントを削除
+     *
+     * @param  Request  $request
+     */
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer',
+        ]);
+
+        $schedule = Schedule::findOrFail($request->input('id'));
+        $schedule->delete();
+
+        return response()->json(['success' => true]);
     }
 }

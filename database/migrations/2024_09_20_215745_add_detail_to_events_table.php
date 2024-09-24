@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('schedules', function (Blueprint $table) {
-            $table->id();
-            $table->date('start_date')->comment('開始日');
-            $table->date('end_date')->comment('終了日');
-            $table->string('event_name')->comment('イベント名');
-            $table->timestamps();
+        Schema::table('events', function (Blueprint $table) {
+            //イベントの詳細を追加
+            $table->text('detail')->nullable();
         });
     }
 
@@ -25,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('schedules');
+        Schema::table('events', function (Blueprint $table) {
+            //
+        });
     }
 };

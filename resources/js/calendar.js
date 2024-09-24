@@ -5,66 +5,176 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import axios from 'axios';
 
-var calendarEl = document.getElementById("calendar");
+let calendar;
+let selectedEvent = null;
+let selectedDate = null;
 
-let calendar = new Calendar(calendarEl, {
-    plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
-    initialView: "dayGridMonth",
-    headerToolbar: {
-        left: "prev,next today",
-        center: "title",
-        right: "dayGridMonth,timeGridWeek,listWeek",
-    },
-    locale: "ja",
-
-    // 日付をクリック、または範囲を選択したイベント
-    selectable: true,
-    select: function (info) {
-        //alert("selected " + info.startStr + " to " + info.endStr);
-
-        // 入力ダイアログ
-        const eventName = prompt("イベントを入力してください");
-
-        if (eventName) {
-            // Laravelの登録処理の呼び出し
-            axios
-                .post("/schedule-add", {
-                    start_date: info.start.valueOf(),
-                    end_date: info.end.valueOf(),
-                    event_name: eventName,
-                })
-                .then(() => {
-                    // イベントの追加
-                    calendar.addEvent({
-                        title: eventName,
-                        start: info.start,
-                        end: info.end,
-                        allDay: true,
-                    });
-                })
-                .catch(() => {
-                    // バリデーションエラーなど
-                    alert("登録に失敗しました");
-                });
-        }
-    },
-    events: function (info, successCallback, failureCallback) {
-        // Laravelのイベント取得処理の呼び出し
-        axios
-            .post("/schedule-get", {
-                start_date: info.start.valueOf(),
-                end_date: info.end.valueOf(),
-            })
-            .then((response) => {
-                // 追加したイベントを削除
-                calendar.removeAllEvents();
-                // カレンダーに読み込み
-                successCallback(response.data);
-            })
-            .catch(() => {
-                // バリデーションエラーなど
-                alert("登録に失敗しました");
-            });
-    },
+document.addEventListener('DOMContentLoaded', function () {
+    initializeCalendar();
+    setupEventListeners();
 });
-calendar.render();
+
+function initializeCalendar() {
+    const calendarEl = document.getElementById("calendar");
+    calendar = new Calendar(calendarEl, {
+        plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
+        initialView: "dayGridMonth",
+        headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,listWeek",
+        },
+        locale: "ja",
+        selectable: true,
+        select: handleDateSelect,
+        eventClick: handleEventClick,
+        events: fetchEvents
+    });
+    calendar.render();
+}
+
+function handleDateSelect(info) {
+    selectedEvent = null;
+    selectedDate = info.start;
+    openModal('add');
+}
+
+function handleEventClick(info) {
+    selectedEvent = info.event;
+    selectedDate = null;
+    openModal('edit');
+}
+
+function fetchEvents(info, successCallback, failureCallback) {
+    axios.post("/schedule-get", {
+        start_date: info.start.valueOf(),
+        end_date: info.end.valueOf(),
+    })
+        .then((response) => {
+            successCallback(response.data);
+        })
+        .catch((error) => {
+            console.error("Failed to fetch events:", error);
+            failureCallback(error);
+        });
+}
+
+function setupEventListeners() {
+    document.getElementById('save-event').addEventListener('click', saveEvent);
+    document.getElementById('delete-event').addEventListener('click', deleteEvent);
+    document.getElementById('cancel-event').addEventListener('click', closeModal);
+    document.querySelector('.close').addEventListener('click', closeModal);
+}
+
+function saveEvent() {
+    const eventId = document.getElementById('event-id').value;
+    const eventName = document.getElementById('event-name').value.trim();
+    const eventDetail = document.getElementById('event-detail').value.trim();
+    const eventStart = document.getElementById('event-start').value;
+    const eventEnd = document.getElementById('event-end').value;
+
+    if (!eventName || !eventStart || !eventEnd) {
+        showError('必須フィールドを入力してください');
+        return;
+    }
+
+    const eventData = {
+        event_name: eventName,
+        event_detail: eventDetail,
+        start_date: new Date(eventStart).valueOf(),
+        end_date: new Date(eventEnd).valueOf(),
+    };
+
+    if (selectedEvent) {
+        // 編集の場合
+        eventData.id = eventId;
+        axios.post("/schedule-update", eventData)
+            .then((response) => {
+                selectedEvent.remove();
+                calendar.addEvent({
+                    id: response.data.id,
+                    title: response.data.title,
+                    start: response.data.start,
+                    end: response.data.end,
+                    extendedProps: { detail: response.data.extendedProps.detail }
+                });
+                closeModal();
+            })
+            .catch((error) => {
+                console.error("Failed to update event:", error);
+                showError('更新に失敗しました。もう一度お試しください。');
+            });
+    } else {
+        // 新規追加の場合
+        axios.post("/schedule-add", eventData)
+            .then((response) => {
+                calendar.addEvent({
+                    id: response.data.id,
+                    title: response.data.title,
+                    start: response.data.start,
+                    end: response.data.end,
+                    extendedProps: { detail: response.data.extendedProps.detail }
+                });
+                closeModal();
+            })
+            .catch((error) => {
+                console.error("Failed to save event:", error);
+                showError('登録に失敗しました。もう一度お試しください。');
+            });
+    }
+}
+
+function deleteEvent() {
+    if (selectedEvent) {
+        axios.post("/schedule-delete", { id: selectedEvent.id })
+            .then(() => {
+                selectedEvent.remove();
+                closeModal();
+            })
+            .catch((error) => {
+                console.error("Failed to delete event:", error);
+                showError('削除に失敗しました。もう一度お試しください。');
+            });
+    }
+}
+
+function openModal(mode) {
+    const modal = document.getElementById('eventModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const deleteButton = document.getElementById('delete-event');
+    const eventIdInput = document.getElementById('event-id');
+    const eventNameInput = document.getElementById('event-name');
+    const eventDetailInput = document.getElementById('event-detail');
+    const eventStartInput = document.getElementById('event-start');
+    const eventEndInput = document.getElementById('event-end');
+
+    if (mode === 'edit') {
+        modalTitle.textContent = 'イベントを編集';
+        eventIdInput.value = selectedEvent.id;
+        eventNameInput.value = selectedEvent.title;
+        eventDetailInput.value = selectedEvent.extendedProps.detail || '';
+        eventStartInput.value = selectedEvent.start.toISOString().slice(0, 16);
+        eventEndInput.value = selectedEvent.end ? selectedEvent.end.toISOString().slice(0, 16) : selectedEvent.start.toISOString().slice(0, 16);
+        deleteButton.style.display = 'inline-block';
+    } else {
+        modalTitle.textContent = 'イベントを追加';
+        eventIdInput.value = '';
+        eventNameInput.value = '';
+        eventDetailInput.value = '';
+        eventStartInput.value = selectedDate.toISOString().slice(0, 16);
+        eventEndInput.value = selectedDate.toISOString().slice(0, 16);
+        deleteButton.style.display = 'none';
+    }
+
+    modal.style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('eventModal').style.display = 'none';
+    selectedEvent = null;
+    selectedDate = null;
+}
+
+function showError(message) {
+    alert(message);  // 簡単のため、アラートを使用
+}
