@@ -41,4 +41,8 @@ class Event extends Model
             'end_date' => $this->end_date->toISOString(),
         ];
     }
+    public function messages()
+    {
+    return $this->hasMany(Message::class);
+    }
 }

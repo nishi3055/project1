@@ -62,6 +62,49 @@
             background-color: #9e9e9e;
             color: white;
         }
+        /* チャットモーダル用のスタイルを追加 */
+        #chatModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            width: 300px;
+        }
+        #chat-messages {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #message-input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #send-message, #close-chat {
+            padding: 8px 15px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #send-message {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #close-chat {
+            background-color: #9e9e9e;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -84,8 +127,16 @@
             <label for="event-detail">詳細:</label>
             <textarea id="event-detail" name="event-detail" rows="3"></textarea>
             <button id="save-event">保存</button>
+            <button id="chat-button" style="display: none;">チャット</button>
             <button id="delete-event">削除</button>
             <button id="cancel-event">キャンセル</button>
+        </div>
+        <div id="chatModal">
+            <h3 class="text-xl font-bold mb-4">チャット</h3>
+            <div id="chat-messages"></div>
+            <input type="text" id="message-input" placeholder="メッセージを入力">
+            <button id="send-message">送信</button>
+            <button id="close-chat">閉じる</button>
         </div>
     </x-app-layout>
 </body>

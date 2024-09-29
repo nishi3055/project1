@@ -43,6 +43,12 @@ function handleEventClick(info) {
     selectedEvent = info.event;
     selectedDate = null;
     openModal('edit');
+    document.getElementById('chat-button').style.display = 'inline-block';
+
+    // チャットボタンのイベントリスナーを更新
+    document.getElementById('chat-button').onclick = function () {
+        window.location.href = `/events/${selectedEvent.id}/chat`;
+    };
 }
 
 function fetchEvents(info, successCallback, failureCallback) {
@@ -63,7 +69,6 @@ function setupEventListeners() {
     document.getElementById('save-event').addEventListener('click', saveEvent);
     document.getElementById('delete-event').addEventListener('click', deleteEvent);
     document.getElementById('cancel-event').addEventListener('click', closeModal);
-    document.querySelector('.close').addEventListener('click', closeModal);
 }
 
 function saveEvent() {
@@ -156,6 +161,7 @@ function openModal(mode) {
         eventStartInput.value = selectedEvent.start.toISOString().slice(0, 16);
         eventEndInput.value = selectedEvent.end ? selectedEvent.end.toISOString().slice(0, 16) : selectedEvent.start.toISOString().slice(0, 16);
         deleteButton.style.display = 'inline-block';
+        document.getElementById('chat-button').style.display = 'inline-block';
     } else {
         modalTitle.textContent = 'イベントを追加';
         eventIdInput.value = '';
@@ -164,6 +170,7 @@ function openModal(mode) {
         eventStartInput.value = selectedDate.toISOString().slice(0, 16);
         eventEndInput.value = selectedDate.toISOString().slice(0, 16);
         deleteButton.style.display = 'none';
+        document.getElementById('chat-button').style.display = 'none';
     }
 
     modal.style.display = 'block';
