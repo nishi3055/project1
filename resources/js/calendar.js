@@ -43,11 +43,17 @@ function handleEventClick(info) {
     selectedEvent = info.event;
     selectedDate = null;
     openModal('edit');
-    document.getElementById('chat-button').style.display = 'inline-block';
+    const chatButton = document.getElementById('chat-button');
+    chatButton.style.display = 'inline-block'; style.display = 'inline-block';
 
     // チャットボタンのイベントリスナーを更新
-    document.getElementById('chat-button').onclick = function () {
-        window.location.href = `/events/${selectedEvent.id}/chat`;
+    chatButton.onclick = function (e) {
+        e.preventDefault(); // デフォルトの動作を防止
+        const eventId = selectedEvent.id;
+        const url = `/events/${eventId}/chat`;
+
+        // 新しいページに遷移
+        window.location.href = url;
     };
 }
 

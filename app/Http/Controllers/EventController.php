@@ -69,4 +69,8 @@ class EventController extends Controller
 
         return response()->json(['message' => 'Event deleted successfully']);
     }
+    public function show(Event $event)
+    {
+    return view('events.chat', compact('event'));
+    }
 }

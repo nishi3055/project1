@@ -40,7 +40,7 @@ use App\Http\Controllers\MessageController;
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
     
     // チャット関連
-    Route::get('/events/{event}/chat', [MessageController::class, 'showChat'])->name('events.chat');
+    Route::get('/events/{event}/chat', 'EventChatController@show')->name('events.chat');
     Route::get('/events/{event}/messages', [MessageController::class, 'index'])->name('events.messages.index');
     Route::post('/events/{event}/messages', [MessageController::class, 'store'])->name('events.messages.store');
     });
