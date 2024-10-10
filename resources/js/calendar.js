@@ -4,6 +4,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import axios from 'axios';
+axios.defaults.baseURL = window.baseUrl;
 
 let calendar;
 let selectedEvent = null;
@@ -50,15 +51,15 @@ function handleEventClick(info) {
     chatButton.onclick = function (e) {
         e.preventDefault(); // デフォルトの動作を防止
         const eventId = selectedEvent.id;
-        const url = `/events/${eventId}/chat`;
+        const url = `events/${eventId}/chat`;
 
         // 新しいページに遷移
-        window.location.href = url;
+        window.location.href = window.baseUrl + '/' + url;
     };
 }
 
 function fetchEvents(info, successCallback, failureCallback) {
-    axios.post("/schedule-get", {
+    axios.post("schedule-get", {
         start_date: info.start.valueOf(),
         end_date: info.end.valueOf(),
     })
@@ -99,7 +100,7 @@ function saveEvent() {
     if (selectedEvent) {
         // 編集の場合
         eventData.id = eventId;
-        axios.post("/schedule-update", eventData)
+        axios.post("schedule-update", eventData)
             .then((response) => {
                 selectedEvent.remove();
                 calendar.addEvent({
@@ -117,7 +118,7 @@ function saveEvent() {
             });
     } else {
         // 新規追加の場合
-        axios.post("/schedule-add", eventData)
+        axios.post("schedule-add", eventData)
             .then((response) => {
                 calendar.addEvent({
                     id: response.data.id,
@@ -137,7 +138,7 @@ function saveEvent() {
 
 function deleteEvent() {
     if (selectedEvent) {
-        axios.post("/schedule-delete", { id: selectedEvent.id })
+        axios.post("schedule-delete", { id: selectedEvent.id })
             .then(() => {
                 selectedEvent.remove();
                 closeModal();
