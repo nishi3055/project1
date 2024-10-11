@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function sendMessage(content) {
-        axios.post(`/events/${eventId}/messages`, { content })
+        axios.post(`events/${eventId}/messages`, { content })
             .then(response => {
                 appendMessage(response.data);
                 messageInput.value = '';
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function loadMessages() {
-        axios.get(`/events/${eventId}/messages`)
+        axios.get(`events/${eventId}/messages`)
             .then(response => {
                 chatMessages.innerHTML = '';
                 response.data.forEach(appendMessage);
