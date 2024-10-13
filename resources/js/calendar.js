@@ -12,7 +12,7 @@ let selectedDate = null;
 
 document.addEventListener('DOMContentLoaded', function () {
     const appUrl = document.getElementById('app-url').getAttribute('data-url');
-    window.scheduleGetUrl = `${appUrl}/project1/schedule-get`;
+    window.scheduleGetUrl = `${appUrl}/schedule-get`;
 
     initializeCalendar();
     setupEventListeners();
