@@ -2,18 +2,12 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <div data-url="{{env('APP_URL')}}" id="app-url"></div>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FullCalendar in Laravel</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="{{ asset('app.css') }}" rel="stylesheet">
-    <script>
-        window.addEventListener('DOMContentLoaded', (event) => {
-        const appUrl = document.getElementById('app-url').getAttribute('data-url');
-        window.scheduleGetUrl = `${appUrl}/schedule-get`;
-    });
-</script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -115,6 +109,7 @@
     </style>
 </head>
 <body>
+    <div data-url="{{ config('app.url') }}" id="app-url" style="display:none;"></div>
     <x-app-layout>
         <div id="calendar-container">
             <h1 class="text-2xl font-bold mb-4">イベントカレンダー</h1>
@@ -146,5 +141,16 @@
             <button id="close-chat">閉じる</button>
         </div>
     </x-app-layout>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+        const appUrl = document.getElementById('app-url').getAttribute('data-url');
+        window.scheduleGetUrl = `${appUrl}/schedule-get`;
+        // ここでカレンダーの初期化やその他の処理を行う
+        if (typeof initializeCalendar === 'function') {
+            initializeCalendar();
+        }
+    });
+    </script>
 </body>
 </html>
