@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const appUrl = document.getElementById('app-url').getAttribute('data-url');
     window.scheduleGetUrl = `${appUrl}/schedule-get`;
 
+    // axios のベース URL を設定
+    axios.defaults.baseURL = appUrl;
+    
     initializeCalendar();
     setupEventListeners();
 });

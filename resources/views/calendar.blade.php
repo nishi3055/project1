@@ -109,7 +109,7 @@
     </style>
 </head>
 <body>
-    <div data-url="{{ config('APP_URL') }}" id="app-url" style="display:none;"></div>
+    <div data-url="{{ config('app.url') }}" id="app-url" style="display:none;"></div>
     <x-app-layout>
         <div id="calendar-container">
             <h1 class="text-2xl font-bold mb-4">イベントカレンダー</h1>
