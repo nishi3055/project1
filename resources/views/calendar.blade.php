@@ -9,8 +9,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="{{ asset('app.css') }}" rel="stylesheet">
     <script>
-    window.baseUrl = "{{ url('/') }}";
-    </script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+        const appUrl = document.getElementById('app-url').getAttribute('data-url');
+        window.scheduleGetUrl = `${appUrl}/schedule-get`;
+    });
+</script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
