@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('data-url attribute not found on app-url element');
         return;
     }
-    window.scheduleGetUrl = `${appUrl}/project1/schedule-get`;
+    window.scheduleGetUrl = `${appUrl}/schedule-get`;
 
     // axios のベース URL を設定
     axios.defaults.baseURL = `${appUrl}/project1`;
