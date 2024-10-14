@@ -21,10 +21,29 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('data-url attribute not found on app-url element');
         return;
     }
-    window.scheduleGetUrl = `${appUrl}/schedule-get`;
+    window.scheduleGetUrl = `${appUrl}/project1/schedule-get`;
 
     // axios のベース URL を設定
-    axios.defaults.baseURL = appUrl;
+    axios.defaults.baseURL = `${appUrl}/project1`;
+
+    // Axiosエラーインターセプターを追加
+    axios.interceptors.response.use(
+        response => response,
+        error => {
+            console.error('Axios error:', error);
+            console.error('Error config:', error.config);
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+                console.error('Error status:', error.response.status);
+                console.error('Error headers:', error.response.headers);
+            } else if (error.request) {
+                console.error('Error request:', error.request);
+            } else {
+                console.error('Error message:', error.message);
+            }
+            return Promise.reject(error);
+        }
+    );
     
     initializeCalendar();
     setupEventListeners();
