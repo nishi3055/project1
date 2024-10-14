@@ -11,13 +11,21 @@ let selectedEvent = null;
 let selectedDate = null;
 
 document.addEventListener('DOMContentLoaded', function () {
-    const appUrl = document.getElementById('app-url').getAttribute('data-url');
-    // 相対パスを使用
-    window.scheduleGetUrl = `/schedule-get`;
+    const appUrlElement = document.getElementById('app-url');
+    if (!appUrlElement) {
+        console.error('Element with id "app-url" not found');
+        return;
+    }
+    const appUrl = appUrlElement.getAttribute('data-url');
+    if (!appUrl) {
+        console.error('data-url attribute not found on app-url element');
+        return;
+    }
+    window.scheduleGetUrl = `${appUrl}/schedule-get`;
 
     // axios のベース URL を設定
     axios.defaults.baseURL = appUrl;
-
+    
     initializeCalendar();
     setupEventListeners();
 });
@@ -44,6 +52,11 @@ function initializeCalendar() {
 function handleDateSelect(info) {
     selectedEvent = null;
     selectedDate = info.start;
+    console.log('Raw info:', info);
+    console.log('Selected date:', selectedDate);
+    console.log('Selected date (formatted):', selectedDate.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }));
+    console.log('Selected date (ISO):', selectedDate.toISOString());
+
     openModal('add');
 }
 
@@ -105,7 +118,7 @@ function saveEvent() {
     if (selectedEvent) {
         // 編集の場合
         eventData.id = eventId;
-        axios.post('/schedule-update', eventData)
+        axios.post(window.scheduleGetUrl.replace('schedule-get', 'schedule-update'), eventData)
             .then((response) => {
                 selectedEvent.remove();
                 calendar.addEvent({
@@ -123,7 +136,7 @@ function saveEvent() {
             });
     } else {
         // 新規追加の場合
-        axios.post('/schedule-add', eventData)
+        axios.post(window.scheduleGetUrl.replace('schedule-get', 'schedule-add'), eventData)
             .then((response) => {
                 calendar.addEvent({
                     id: response.data.id,
@@ -143,8 +156,8 @@ function saveEvent() {
 
 function deleteEvent() {
     if (selectedEvent) {
-        axios.post('/schedule-delete', { id: selectedEvent.id })
-            .then(() => {
+        axios.post(window.scheduleGetUrl.replace('schedule-get', 'schedule-delete'), { id: selectedEvent.id })
+            .then(() => {        
                 selectedEvent.remove();
                 closeModal();
             })
@@ -196,4 +209,13 @@ function closeModal() {
 
 function showError(message) {
     alert(message);  // 簡単のため、アラートを使用
+}
+// デバッグ用の関数
+function logDateDetails(date, label) {
+    console.log(`${label}:`, {
+        date: date,
+        ISOString: date.toISOString(),
+        localString: date.toLocaleString('ja-JP'),
+        timezoneOffset: date.getTimezoneOffset()
+    });
 }
