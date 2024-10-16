@@ -13,7 +13,6 @@ let selectedDate = null;
 document.addEventListener('DOMContentLoaded', function () {
     const appUrl = document.getElementById('app-url').getAttribute('data-url');
     window.scheduleGetUrl = `${appUrl}/schedule-get`;
-    console.log("App URL:", appUrl);
 
     // axios のベース URL を設定
     axios.defaults.baseURL = appUrl;
