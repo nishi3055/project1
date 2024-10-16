@@ -11,40 +11,13 @@ let selectedEvent = null;
 let selectedDate = null;
 
 document.addEventListener('DOMContentLoaded', function () {
-    const appUrlElement = document.getElementById('app-url');
-    if (!appUrlElement) {
-        console.error('Element with id "app-url" not found');
-        return;
-    }
-    const appUrl = appUrlElement.getAttribute('data-url');
-    if (!appUrl) {
-        console.error('data-url attribute not found on app-url element');
-        return;
-    }
+    const appUrl = document.getElementById('app-url').getAttribute('data-url');
     window.scheduleGetUrl = `${appUrl}/schedule-get`;
+    console.log("App URL:", appUrl);
 
     // axios のベース URL を設定
-    axios.defaults.baseURL = `${appUrl}/project1`;
+    axios.defaults.baseURL = appUrl;
 
-    // Axiosエラーインターセプターを追加
-    axios.interceptors.response.use(
-        response => response,
-        error => {
-            console.error('Axios error:', error);
-            console.error('Error config:', error.config);
-            if (error.response) {
-                console.error('Error response:', error.response.data);
-                console.error('Error status:', error.response.status);
-                console.error('Error headers:', error.response.headers);
-            } else if (error.request) {
-                console.error('Error request:', error.request);
-            } else {
-                console.error('Error message:', error.message);
-            }
-            return Promise.reject(error);
-        }
-    );
-    
     initializeCalendar();
     setupEventListeners();
 });
@@ -71,11 +44,6 @@ function initializeCalendar() {
 function handleDateSelect(info) {
     selectedEvent = null;
     selectedDate = info.start;
-    console.log('Raw info:', info);
-    console.log('Selected date:', selectedDate);
-    console.log('Selected date (formatted):', selectedDate.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }));
-    console.log('Selected date (ISO):', selectedDate.toISOString());
-
     openModal('add');
 }
 
@@ -176,7 +144,7 @@ function saveEvent() {
 function deleteEvent() {
     if (selectedEvent) {
         axios.post(window.scheduleGetUrl.replace('schedule-get', 'schedule-delete'), { id: selectedEvent.id })
-            .then(() => {        
+            .then(() => {
                 selectedEvent.remove();
                 closeModal();
             })
@@ -228,13 +196,4 @@ function closeModal() {
 
 function showError(message) {
     alert(message);  // 簡単のため、アラートを使用
-}
-// デバッグ用の関数
-function logDateDetails(date, label) {
-    console.log(`${label}:`, {
-        date: date,
-        ISOString: date.toISOString(),
-        localString: date.toLocaleString('ja-JP'),
-        timezoneOffset: date.getTimezoneOffset()
-    });
 }
