@@ -163,14 +163,21 @@ function openModal(mode) {
     const eventDetailInput = document.getElementById('event-detail');
     const eventStartInput = document.getElementById('event-start');
     const eventEndInput = document.getElementById('event-end');
+    // UTCの日時を日本時間に変換する関数
+    const toLocalDateTime = (date) => {
+        const localDate = new Date(date.getTime() + 9 * 60 * 60 * 1000); // UTCから9時間加算
+        return localDate.toISOString().slice(0, 16); // 年-月-日T時:分形式で返す
+    };
 
     if (mode === 'edit') {
         modalTitle.textContent = 'イベントを編集';
         eventIdInput.value = selectedEvent.id;
         eventNameInput.value = selectedEvent.title;
         eventDetailInput.value = selectedEvent.extendedProps.detail || '';
-        eventStartInput.value = selectedEvent.start.toISOString().slice(0, 16);
-        eventEndInput.value = selectedEvent.end ? selectedEvent.end.toISOString().slice(0, 16) : selectedEvent.start.toISOString().slice(0, 16);
+        eventStartInput.value = toLocalDateTime(selectedEvent.start);
+        eventEndInput.value = selectedEvent.end
+            ? toLocalDateTime(selectedEvent.end)
+            : toLocalDateTime(selectedEvent.start);
         deleteButton.style.display = 'inline-block';
         document.getElementById('chat-button').style.display = 'inline-block';
     } else {
@@ -178,8 +185,8 @@ function openModal(mode) {
         eventIdInput.value = '';
         eventNameInput.value = '';
         eventDetailInput.value = '';
-        eventStartInput.value = selectedDate.toISOString().slice(0, 16);
-        eventEndInput.value = selectedDate.toISOString().slice(0, 16);
+        eventStartInput.value = toLocalDateTime(selectedDate);
+        eventEndInput.value = toLocalDateTime(selectedDate);
         deleteButton.style.display = 'none';
         document.getElementById('chat-button').style.display = 'none';
     }
