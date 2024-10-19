@@ -37,8 +37,8 @@ class Event extends Model
             'id' => $this->id,
             'title' => $this->title,
             'detail' => $this->detail,
-            'start_date' => $this->start_date->toISOString(),
-            'end_date' => $this->end_date->toISOString(),
+            'start_date' => $this->start_date->toDateTimeString(),
+            'end_date' => $this->end_date->toDateTimeString(),
         ];
     }
     public function messages()

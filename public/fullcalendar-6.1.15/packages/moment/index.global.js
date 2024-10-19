@@ -26,7 +26,7 @@ FullCalendar.Moment = (function (exports, core, moment, internal) {
         if (timeZone === 'local') {
             mom = moment__default["default"](input);
         }
-        else if (timeZone === 'UTC') {
+        else if (timeZone === 'Asia/Tokyo') {
             mom = moment__default["default"].utc(input);
         }
         else if (moment__default["default"].tz) {

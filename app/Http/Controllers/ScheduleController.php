@@ -88,8 +88,8 @@ class ScheduleController extends Controller
         $schedule = Schedule::findOrFail($validatedData['id']);
         $schedule->event_name = $validatedData['event_name'];
         $schedule->event_detail = $validatedData['event_detail'];
-        $schedule->start_date = Carbon::createFromTimestampMs($validatedData['start_date'])->toDateTimeString();
-        $schedule->end_date = Carbon::createFromTimestampMs($validatedData['end_date'])->toDateTimeString();
+        $schedule->start_date = Carbon::createFromTimestampMs($validatedData['start_date'], 'Asia/Tokyo')->toDateTimeString();
+        $schedule->end_date = Carbon::createFromTimestampMs($validatedData['end_date'], 'Asia/Tokyo')->toDateTimeString();
         $schedule->save();
 
         return response()->json([

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FullCalendar in Laravel</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link href="{{ asset('resources/css/app.css') }}" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <style>

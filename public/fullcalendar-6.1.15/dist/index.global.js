@@ -1079,7 +1079,7 @@ var FullCalendar = (function (exports) {
         standardDateProps = Object.assign({}, standardDateProps); // copy
         extendedSettings = Object.assign({}, extendedSettings); // copy
         sanitizeSettings(standardDateProps, extendedSettings);
-        standardDateProps.timeZone = 'UTC'; // we leverage the only guaranteed timeZone for our UTC markers
+        standardDateProps.timeZone = 'Asia/Tokyo'; // we leverage the only guaranteed timeZone for our Asia/Tokyo markers
         let normalFormat = new Intl.DateTimeFormat(context.locale.codes, standardDateProps);
         let zeroFormat; // needed?
         if (extendedSettings.omitZeroMinute) {
@@ -1123,8 +1123,8 @@ var FullCalendar = (function (exports) {
     function postProcess(s, date, standardDateProps, extendedSettings, context) {
         s = s.replace(LTR_RE, ''); // remove left-to-right control chars. do first. good for other regexes
         if (standardDateProps.timeZoneName === 'short') {
-            s = injectTzoStr(s, (context.timeZone === 'UTC' || date.timeZoneOffset == null) ?
-                'UTC' : // important to normalize for IE, which does "GMT"
+            s = injectTzoStr(s, (context.timeZone === 'Asia/Tokyo' || date.timeZoneOffset == null) ?
+                'Asia/Tokyo' : // important to normalize for IE, which does "GMT"
                 formatTimeZoneOffset(date.timeZoneOffset));
         }
         if (extendedSettings.omitCommas) {
@@ -1852,7 +1852,7 @@ var FullCalendar = (function (exports) {
     class DateEnv {
         constructor(settings) {
             let timeZone = this.timeZone = settings.timeZone;
-            let isNamedTimeZone = timeZone !== 'local' && timeZone !== 'UTC';
+            let isNamedTimeZone = timeZone !== 'local' && timeZone !== 'Asia/Tokyo';
             if (settings.namedTimeZoneImpl && isNamedTimeZone) {
                 this.namedTimeZoneImpl = new settings.namedTimeZoneImpl(timeZone);
             }
@@ -2139,7 +2139,7 @@ var FullCalendar = (function (exports) {
             if (this.timeZone === 'local') {
                 return arrayToUtcDate(dateToLocalArray(new Date(ms)));
             }
-            if (this.timeZone === 'UTC' || !this.namedTimeZoneImpl) {
+            if (this.timeZone === 'Asia/Tokyo' || !this.namedTimeZoneImpl) {
                 return new Date(ms);
             }
             return arrayToUtcDate(this.namedTimeZoneImpl.timestampToArray(ms));
@@ -2148,7 +2148,7 @@ var FullCalendar = (function (exports) {
             if (this.timeZone === 'local') {
                 return -arrayToLocalDate(dateToUtcArray(m)).getTimezoneOffset(); // convert "inverse" offset to "normal" offset
             }
-            if (this.timeZone === 'UTC') {
+            if (this.timeZone === 'Asia/Tokyo') {
                 return 0;
             }
             if (this.namedTimeZoneImpl) {
@@ -2161,7 +2161,7 @@ var FullCalendar = (function (exports) {
             if (this.timeZone === 'local') {
                 return arrayToLocalDate(dateToUtcArray(m));
             }
-            if (this.timeZone === 'UTC') {
+            if (this.timeZone === 'Asia/Tokyo') {
                 return new Date(m.valueOf()); // make sure it's a copy
             }
             if (!this.namedTimeZoneImpl) {
